@@ -4,3 +4,9 @@
 [submodule "lib/nvd3"]
 	path = lib/nvd3
 	url = git@github.com:novus/nvd3.git
+[submodule "lib/githubjs"]
+	path = lib/githubjs
+	url = git@github.com:michael/github.git
+[submodule "lib/gitgraph"]
+	path = lib/gitgraph
+	url = git@github.com:bitpshr/Gitgraph.git
