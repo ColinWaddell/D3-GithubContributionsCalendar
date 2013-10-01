@@ -5,19 +5,22 @@
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
 <head>
 <title>Gitgraph</title>
-<link rel="stylesheet" href="styles/app.css">
-<script src="vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
-<script src="../Gitgraph.min.js"></script>
+
+
+<script src="lib/gitgraph/demo/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+<script src="lib/gitgraph/Gitgraph.min.js"></script>
+
+<script src="http://ajax.microsoft.com/ajax/jquery/jquery-1.4.2.min.js" type="text/javascript"></script>
+
 </head>
 
 <body>
   <div class="content">
     <div class="graph" id="graphDiv"></div>
-    <div class="graph" id="graphDiv2"></div>
-    <div class="graph" id="graphDiv3"></div>
-    <div class="graph" id="graphDiv4"></div>
   </div>
-</body>
 
+  <div id="my-github-projects"> </div>
+</body>
+<script src="js/github-graphs-repos.js"></script>
 </html>
 
