@@ -58,7 +58,7 @@ function gitFancyRepos(target, settings){
                       .showControls(false)
                       .x(function(d) { return d[0];})
                       .y(function(d) { return d[1];})
-                      .transitionDuration(300)
+                      .transitionDuration(0)
                       .color(keyColor);
                       //.clipEdge(true);
 
@@ -96,7 +96,7 @@ function gitFancyRepos(target, settings){
         d3.select("#" + this._target.get(0).id + " svg")
           .datum(this._graphData)
           .transition()
-          .duration(500)
+          .duration(0)
           .call(this._chart);
       }
     },

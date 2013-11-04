@@ -1,9 +1,25 @@
 .git-graph{
   display: block;
   width: 100%;
-  min-height: 600px;
+  height: 400px;
 }
 
 .git-graph svg{
 
 }
+
+.git-graph svg text{
+  font-family: "Bariol","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.nvtooltip h3{
+  font-size: 18px;
+}
+
+.nvd3 .nv-y.nv-axis line,
+.nvd3 .nv-x.nv-axis line {
+  stroke: none;
+  fill: none;
+}
+
+
