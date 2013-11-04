@@ -137,4 +137,3 @@ function gitFancyRepos(target, settings){
   this.init();
 }
 
-var g = new gitFancyRepos('#my-github-projects');
