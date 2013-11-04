@@ -38,7 +38,7 @@ function gitFancyRepos(target, settings){
 
       for (i=0; i<52; i++){
         //other_values.push([d.valueOf(), repo.activity.all[i]]);
-        owner_values.push([d.valueOf(), repo.activity.owner[i]]);
+        owner_values.push([d.valueOf(), repo.activity.contents.owner[i]]);
         d.setDate(d.getDate() + 7);
       }
 
