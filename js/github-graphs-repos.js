@@ -15,8 +15,8 @@ function gitFancyRepos(target, settings){
 
 
     init: function(){
-      this._target.empty();
-      this._target.addClass("git-graph");
+      this._target.innerHTML = "";
+      this._target.classList.add("git-graph");
       this._buildGraph();
       this._pullUserData();      
     },
@@ -26,6 +26,8 @@ function gitFancyRepos(target, settings){
           return a.name - b.name;
        });
     },
+
+    /***************************/
 
     _buildGraphData: function(repo){
   
@@ -37,8 +39,7 @@ function gitFancyRepos(target, settings){
       d.setDate(d.getDate() - 7*52);
 
       for (i=0; i<52; i++){
-        //other_values.push([d.valueOf(), repo.activity.all[i]]);
-        owner_values.push([d.valueOf(), repo.activity.contents.owner[i]]);
+        owner_values.push([d.valueOf(), repo.contents.owner[i]]);
         d.setDate(d.getDate() + 7);
       }
 
@@ -50,8 +51,8 @@ function gitFancyRepos(target, settings){
       keyColor = function(d, i) {return colors(d.key);};
       this._graphData = [];
 
-      this._target.empty().append("<svg></svg>");
-      var id = "#" + this._target.get(0).id + " svg";
+      this._target.innerHTML = "<svg></svg>";
+      var id = "#" + this._target.id + " svg";
 
       nv.addGraph(function() {
         this._chart = nv.models.stackedAreaChart()
@@ -69,7 +70,7 @@ function gitFancyRepos(target, settings){
         }
 
         if(this.settings.yaxis_title!==''){
-          this._chart.options({margin:{left: 100}})
+          this._chart.options({margin:{left: 100}, noData: "Loading Data From Github"})
                      .showYAxis(true);
         }
 
@@ -93,7 +94,7 @@ function gitFancyRepos(target, settings){
       if (typeof(this._graphData)==="object"){
         this._graphData.push( { "key" : name, "values" : data} );
 
-        d3.select("#" + this._target.get(0).id + " svg")
+        d3.select("#" + this._target.id + " svg")
           .datum(this._graphData)
           .transition()
           .duration(0)
@@ -101,39 +102,94 @@ function gitFancyRepos(target, settings){
       }
     },
 
+    _showMessage: function(message){
+        this._chart.options({noData: message || "Error Loading Data From Github"});
+        d3.select("#" + this._target.id + " svg")
+          .call(this._chart);
+    },
+
+    /***************************/
+
+    _pullData: function(url, success, errorMessage){
+      var xhr = new XMLHttpRequest();
+      var that = this;
+
+      xhr.open("GET", url, true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4){
+          if (typeof(xhr.response) !== "undefined") {
+            success.call(that, JSON.parse(xhr.response));
+          }
+          else{
+            that._showMessage(errorMessage);
+          }
+        }
+
+      };
+      xhr.send();         
+    },
+
+    /***************************/
+
+    _pullUserData: function(){
+      this._pullData('https://api.github.com/users/'+this.settings.username+'/repos',
+                      this._handleUserData, "Error Loading User Data");
+    },
+
+    _handleUserData: function(repos) {
+      if (typeof(repos)==="object"){
+        //var repos = data.data; // JSON Parsing
+        this._sortByName(repos);    
+     
+        this._showMessage("Loading Activity Data");
+
+        var index;
+        for (index=0; index<repos.length; index++){
+          if (repos[index].name !== (this.settings.username.toLowerCase()+'.github.com')) {
+            this._pullActivityData(repos[index]);
+          }
+        }
+
+      }
+      else{
+        this._showMessage("Data for user " + this.settings.username + " is not available");
+      }
+    },
+
+    /***************************/
+
     _pullActivityData: function(repo){
       var proxy = 'http://cdn.bitpshr.net/simple-proxy/simple-proxy.php?url=',
           url = 'https://github.com/'+this.settings.username+'/'+repo.name+'/graphs/owner_participation';
 
-      $.getJSON(proxy+url, this._handleActivityData.bind(this, repo));
+      this._pullData(proxy+url, this._handleActivityData.bind(this, repo.name), "Error Loading Activity Data");
     },
 
-    _pullUserData: function(){
-      $.getJSON('https://api.github.com/users/'+this.settings.username+'/repos?callback=?', 
-        this._handleUserData.bind(this));
+    _handleActivityData: function(name, repo){
+      this._addGraphData(name, this._buildGraphData(repo));
     },
 
-    _handleUserData: function(data) {
-      var repos = data.data; // JSON Parsing
-      this._sortByName(repos);    
-   
-      $(repos).each(function(index, value) {
-        if (value.name !== (this.settings.username.toLowerCase()+'.github.com')) {
-          this._pullActivityData(value);
+    _extend: function(destination, source) {
+      var property;
+      for (property in source) {
+        if (source.hasOwnProperty(property)){
+          if(source[property] && source[property].constructor && source[property].constructor === Object) {
+            destination[property] = destination[property] || {};
+            this._extend(destination[property], source[property]);
+          }
+          else {
+            destination[property] = source[property];
+          }
         }
-      }.bind(this)); 
-    },
+      }
+      return destination;
+    }
 
-    _handleActivityData: function(repo, activity){
-      repo.activity = activity;
-      this._addGraphData(repo.name, this._buildGraphData(repo));
-    },
-      
   };
 
-  $.extend(this, plugin, properties);
-  $.extend(this.settings, settings);
-  this._target = $(target);
+  plugin._extend(this, plugin, properties);
+  plugin._extend(this.settings, settings);
+  this._target = document.getElementById(target);
   this.init();
 }
 
