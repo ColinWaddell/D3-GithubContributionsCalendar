@@ -7,22 +7,22 @@
 <head>
 <title>Gitgraph</title>
 
-<link href="css/nv.d3.css" rel="stylesheet" type="text/css">
-<link href="css/github-calendar.css" rel="stylesheet" type="text/css">
-
-<script src="js/nvd3.libs.js"></script>
+  <link href="css/nv.d3.css" rel="stylesheet" type="text/css">
+  <link href="css/github-calendar.css" rel="stylesheet" type="text/css">
+  <script src="js/nvd3.libs.js"></script>
 
 </head>
 
 <body>
+
   <div id="my-github-projects"></div>
+
+  <script src="js/github-graphs-repos.js"></script>
+  <script>
+    gitFancyRepos('my-github-projects');
+  </script>
+
 </body>
-
-<script src="js/github-graphs-repos.js"></script>
-<script>
-  gitFancyRepos('my-github-projects');
-</script>
-
 </html>
 
 
