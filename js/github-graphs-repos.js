@@ -7,13 +7,20 @@ function gitFancyRepos(target, settings){
 
   var plugin = {
 
+
+
+    /*************************************
+     * Public plugin settings and methods
+     ************************************/
+
+    // settings for the plugin
     settings: {
       username: 'ColinWaddell',
       xaxis_title: '',
       yaxis_title: 'Number of Commits'
     },
 
-
+    // constructor function
     init: function(){
       this._target.innerHTML = "";
       this._target.classList.add("git-graph");
@@ -21,17 +28,15 @@ function gitFancyRepos(target, settings){
       this._pullUserData();      
     },
 
-    _sortByName: function(repos) {
-        repos.sort(function(a,b) {
-          return a.name - b.name;
-       });
-    },
 
-    /***************************/
 
+
+    /*************************************
+     * Private methods for d3 graph
+     ************************************/
+
+    // take repo activity data and format for d3
     _buildGraphData: function(repo){
-  
-      //var other_values = [];
       var owner_values = [],
           d = new Date(),
           i = 0;
@@ -46,6 +51,7 @@ function gitFancyRepos(target, settings){
       return owner_values;
     },
 
+    // d3 handler for creating the graph template
     _buildGraph: function(){
       var colors = d3.scale.category20();
       keyColor = function(d, i) {return colors(d.key);};
@@ -61,8 +67,6 @@ function gitFancyRepos(target, settings){
                       .y(function(d) { return d[1];})
                       .transitionDuration(0)
                       .color(keyColor);
-                      //.clipEdge(true);
-
 
         if(this.settings.xaxis_title!==''){
           this._chart.options({margin:{bottom: 100}})
@@ -90,6 +94,7 @@ function gitFancyRepos(target, settings){
               
     },
 
+    // add data to the graph
     _addGraphData: function(name, data){
       if (typeof(this._graphData)==="object"){
         this._graphData.push( { "key" : name, "values" : data} );
@@ -102,14 +107,82 @@ function gitFancyRepos(target, settings){
       }
     },
 
+    // show a particular message in place of blank graph
     _showMessage: function(message){
         this._chart.options({noData: message || "Error Loading Data From Github"});
         d3.select("#" + this._target.id + " svg")
           .call(this._chart);
     },
 
-    /***************************/
 
+
+
+    /*************************************
+     * private AJAX methods and handlers
+     *************************************/
+
+    // grab json user data
+    _pullUserData: function(){
+      this._pullData('https://api.github.com/users/'+this.settings.username+'/repos',
+                      this._handleUserData, "Error Loading User Data");
+    },
+
+    // handler for successful user-data GET
+    _handleUserData: function(repos) {
+      if (typeof(repos)==="object"){
+        this._showMessage("Loading Activity Data");
+
+        var index;
+        for (index=0; index<repos.length; index++){
+          if (repos[index].name !== (this.settings.username.toLowerCase()+'.github.com')) {
+            this._pullActivityData(repos[index]);
+          }
+        }
+
+      }
+      else{
+        this._showMessage("Data for user " + this.settings.username + " is not available");
+      }
+    },
+
+    // grab activity data from repo
+    _pullActivityData: function(repo){
+      var proxy = 'http://cdn.bitpshr.net/simple-proxy/simple-proxy.php?url=',
+          url = 'https://github.com/'+this.settings.username+'/'+repo.name+'/graphs/owner_participation';
+
+      this._pullData(proxy+url, this._handleActivityData.bind(this, repo.name), "Error Loading Activity Data");
+    },
+
+    // handler for successful activity GET
+    _handleActivityData: function(name, repo){
+      this._addGraphData(name, this._buildGraphData(repo));
+    },
+
+
+
+
+    /*************************************
+     * jquery replacement methods
+     *************************************/
+
+    // replacement for $.extend
+    _extend: function(destination, source) {
+      var property;
+      for (property in source) {
+        if (source.hasOwnProperty(property)){
+          if(source[property] && source[property].constructor && source[property].constructor === Object) {
+            destination[property] = destination[property] || {};
+            this._extend(destination[property], source[property]);
+          }
+          else {
+            destination[property] = source[property];
+          }
+        }
+      }
+      return destination;
+    },
+
+    // replacement for $.ajax
     _pullData: function(url, success, errorMessage){
       var xhr = new XMLHttpRequest();
       var that = this;
@@ -127,62 +200,6 @@ function gitFancyRepos(target, settings){
 
       };
       xhr.send();         
-    },
-
-    /***************************/
-
-    _pullUserData: function(){
-      this._pullData('https://api.github.com/users/'+this.settings.username+'/repos',
-                      this._handleUserData, "Error Loading User Data");
-    },
-
-    _handleUserData: function(repos) {
-      if (typeof(repos)==="object"){
-        //var repos = data.data; // JSON Parsing
-        this._sortByName(repos);    
-     
-        this._showMessage("Loading Activity Data");
-
-        var index;
-        for (index=0; index<repos.length; index++){
-          if (repos[index].name !== (this.settings.username.toLowerCase()+'.github.com')) {
-            this._pullActivityData(repos[index]);
-          }
-        }
-
-      }
-      else{
-        this._showMessage("Data for user " + this.settings.username + " is not available");
-      }
-    },
-
-    /***************************/
-
-    _pullActivityData: function(repo){
-      var proxy = 'http://cdn.bitpshr.net/simple-proxy/simple-proxy.php?url=',
-          url = 'https://github.com/'+this.settings.username+'/'+repo.name+'/graphs/owner_participation';
-
-      this._pullData(proxy+url, this._handleActivityData.bind(this, repo.name), "Error Loading Activity Data");
-    },
-
-    _handleActivityData: function(name, repo){
-      this._addGraphData(name, this._buildGraphData(repo));
-    },
-
-    _extend: function(destination, source) {
-      var property;
-      for (property in source) {
-        if (source.hasOwnProperty(property)){
-          if(source[property] && source[property].constructor && source[property].constructor === Object) {
-            destination[property] = destination[property] || {};
-            this._extend(destination[property], source[property]);
-          }
-          else {
-            destination[property] = source[property];
-          }
-        }
-      }
-      return destination;
     }
 
   };
