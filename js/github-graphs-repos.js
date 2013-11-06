@@ -5,13 +5,12 @@ function gitFancyRepos(target, settings){
     _target : [],
   };
 
+
+  /*************************************
+   * Public plugin settings and methods
+   ************************************/
+
   var plugin = {
-
-
-
-    /*************************************
-     * Public plugin settings and methods
-     ************************************/
 
     // settings for the plugin
     settings: {
@@ -27,7 +26,6 @@ function gitFancyRepos(target, settings){
       this._buildGraph();
       this._pullUserData();      
     },
-
 
 
 
@@ -116,7 +114,6 @@ function gitFancyRepos(target, settings){
 
 
 
-
     /*************************************
      * private AJAX methods and handlers
      *************************************/
@@ -157,7 +154,6 @@ function gitFancyRepos(target, settings){
     _handleActivityData: function(name, repo){
       this._addGraphData(name, this._buildGraphData(repo));
     },
-
 
 
 
