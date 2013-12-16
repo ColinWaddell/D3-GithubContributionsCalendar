@@ -18,7 +18,7 @@
 
 .nvd3 .nv-y.nv-axis line,
 .nvd3 .nv-x.nv-axis line {
-  stroke: none;
+  stroke: #809960;
   fill: none;
 }
 

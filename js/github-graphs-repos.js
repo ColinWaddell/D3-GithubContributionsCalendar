@@ -59,11 +59,10 @@ function gitFancyRepos(target, settings){
       var id = "#" + this._target.id + " svg";
 
       nv.addGraph(function() {
-        this._chart = nv.models.stackedAreaChart()
-                      .showControls(false)
+        this._chart = nv.models.lineChart()
                       .x(function(d) { return d[0];})
                       .y(function(d) { return d[1];})
-                      .transitionDuration(0)
+                      .transitionDuration(90)
                       .color(keyColor);
 
         if(this.settings.xaxis_title!==''){
@@ -99,8 +98,6 @@ function gitFancyRepos(target, settings){
 
         d3.select("#" + this._target.id + " svg")
           .datum(this._graphData)
-          .transition()
-          .duration(0)
           .call(this._chart);
       }
     },
@@ -200,7 +197,8 @@ function gitFancyRepos(target, settings){
 
   };
 
-  plugin._extend(this, plugin, properties);
+  plugin._extend(this, plugin);
+  plugin._extend(this, properties);
   plugin._extend(this.settings, settings);
   this._target = document.getElementById(target);
   this.init();

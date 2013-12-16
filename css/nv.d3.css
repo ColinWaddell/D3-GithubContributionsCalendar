@@ -3,6 +3,11 @@
  * HTML CSS
  */
 
+.bs-graph{
+  display: block;
+  width: 100%;
+  height: 600px;
+}
 
 .chartWrap {
   margin: 0;
